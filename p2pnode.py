@@ -62,7 +62,7 @@ class P2PNode:
 
         # If we have a bootstrap node, register with it
         if self.bootstrap_url:
-            self.register_with_bootstrap()
+            register_with_bootstrap(self)
 
         self.app.run(host='0.0.0.0', port=self.port, debug=True)
 
@@ -83,7 +83,7 @@ def register_with_bootstrap(self):
             print(
                 f"Successfully registered with bootstrap node at {self.bootstrap_url}")
             # Get the list of peers from the bootstrap node
-            self.get_peers_from_bootstrap()
+            get_peers_from_bootstrap(self)
         else:
             print(
                 f"Failed to register with bootstrap node: {response.status_code}")

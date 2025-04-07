@@ -5,6 +5,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 RUN pip install flask requests
+RUN pip install flask_cors
 
 # Copy the application code
 COPY p2pnode.py .
