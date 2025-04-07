@@ -1,16 +1,17 @@
-# Use Python 3 as the base image
+# Use Python 3.9 slim as the base image
 FROM python:3.9-slim
 
 # Set working directory
 WORKDIR /app
 
-RUN pip install flask requests
-RUN pip install flask_cors
+# Install dependencies
+RUN pip install --no-cache-dir flask requests flask-cors
 
-# Copy the application code
+# Copy the app code
 COPY p2pnode.py .
 
-EXPOSE 5000
+# Expose the range of ports used by the nodes
+EXPOSE 8000-8050
 
-# Command to run the application
-CMD ["python", "p2pnode.py"]
+# Default command (can be overridden in docker-compose)
+CMD ["python", "p2pnode.py", "--bootstrap", "8000"]
