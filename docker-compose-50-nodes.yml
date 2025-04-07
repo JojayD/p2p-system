@@ -1,408 +1,408 @@
-version: '3'
+version: "3"
 
 services:
-  bootstrap:
-    build: .
-    ports:
-      - "5000:5000"
-    command: ["python", "p2pnode.py", "--bootstrap", "5000"]
+ bootstrap:
+  build: .
+  ports:
+   - "8000:8000"
+  command: ["python", "p2pnode.py", "--bootstrap", "8000"]
 
-  node1:
-    build: .
-    ports:
-      - "501:501"
-    command: ["python", "p2pnode.py", "501", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node1:
+  build: .
+  ports:
+   - "8001:8001"
+  command: ["python", "p2pnode.py", "8001", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node2:
-    build: .
-    ports:
-      - "502:502"
-    command: ["python", "p2pnode.py", "502", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node2:
+  build: .
+  ports:
+   - "8002:8002"
+  command: ["python", "p2pnode.py", "8002", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node3:
-    build: .
-    ports:
-      - "503:503"
-    command: ["python", "p2pnode.py", "503", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node3:
+  build: .
+  ports:
+   - "8003:8003"
+  command: ["python", "p2pnode.py", "8003", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node4:
-    build: .
-    ports:
-      - "504:504"
-    command: ["python", "p2pnode.py", "504", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node4:
+  build: .
+  ports:
+   - "8004:8004"
+  command: ["python", "p2pnode.py", "8004", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node5:
-    build: .
-    ports:
-      - "505:505"
-    command: ["python", "p2pnode.py", "505", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node5:
+  build: .
+  ports:
+   - "8005:8005"
+  command: ["python", "p2pnode.py", "8005", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node6:
-    build: .
-    ports:
-      - "506:506"
-    command: ["python", "p2pnode.py", "506", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node6:
+  build: .
+  ports:
+   - "8006:8006"
+  command: ["python", "p2pnode.py", "8006", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node7:
-    build: .
-    ports:
-      - "507:507"
-    command: ["python", "p2pnode.py", "507", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node7:
+  build: .
+  ports:
+   - "8007:8007"
+  command: ["python", "p2pnode.py", "8007", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node8:
-    build: .
-    ports:
-      - "508:508"
-    command: ["python", "p2pnode.py", "508", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node8:
+  build: .
+  ports:
+   - "8008:8008"
+  command: ["python", "p2pnode.py", "8008", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node9:
-    build: .
-    ports:
-      - "509:509"
-    command: ["python", "p2pnode.py", "509", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node9:
+  build: .
+  ports:
+   - "8009:8009"
+  command: ["python", "p2pnode.py", "8009", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node10:
-    build: .
-    ports:
-      - "5010:5010"
-    command: ["python", "p2pnode.py", "5010", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node10:
+  build: .
+  ports:
+   - "8010:8010"
+  command: ["python", "p2pnode.py", "8010", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node11:
-    build: .
-    ports:
-      - "5011:5011"
-    command: ["python", "p2pnode.py", "5011", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node11:
+  build: .
+  ports:
+   - "8011:8011"
+  command: ["python", "p2pnode.py", "8011", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node12:
-    build: .
-    ports:
-      - "5012:5012"
-    command: ["python", "p2pnode.py", "5012", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node12:
+  build: .
+  ports:
+   - "8012:8012"
+  command: ["python", "p2pnode.py", "8012", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node13:
-    build: .
-    ports:
-      - "5013:5013"
-    command: ["python", "p2pnode.py", "5013", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node13:
+  build: .
+  ports:
+   - "8013:8013"
+  command: ["python", "p2pnode.py", "8013", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node14:
-    build: .
-    ports:
-      - "5014:5014"
-    command: ["python", "p2pnode.py", "5014", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node14:
+  build: .
+  ports:
+   - "8014:8014"
+  command: ["python", "p2pnode.py", "8014", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node15:
-    build: .
-    ports:
-      - "5015:5015"
-    command: ["python", "p2pnode.py", "5015", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node15:
+  build: .
+  ports:
+   - "8015:8015"
+  command: ["python", "p2pnode.py", "8015", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node16:
-    build: .
-    ports:
-      - "5016:5016"
-    command: ["python", "p2pnode.py", "5016", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node16:
+  build: .
+  ports:
+   - "8016:8016"
+  command: ["python", "p2pnode.py", "8016", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node17:
-    build: .
-    ports:
-      - "5017:5017"
-    command: ["python", "p2pnode.py", "5017", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node17:
+  build: .
+  ports:
+   - "8017:8017"
+  command: ["python", "p2pnode.py", "8017", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node18:
-    build: .
-    ports:
-      - "5018:5018"
-    command: ["python", "p2pnode.py", "5018", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node18:
+  build: .
+  ports:
+   - "8018:8018"
+  command: ["python", "p2pnode.py", "8018", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node19:
-    build: .
-    ports:
-      - "5019:5019"
-    command: ["python", "p2pnode.py", "5019", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node19:
+  build: .
+  ports:
+   - "8019:8019"
+  command: ["python", "p2pnode.py", "8019", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node20:
-    build: .
-    ports:
-      - "5020:5020"
-    command: ["python", "p2pnode.py", "5020", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node20:
+  build: .
+  ports:
+   - "8020:8020"
+  command: ["python", "p2pnode.py", "8020", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node21:
-    build: .
-    ports:
-      - "5021:5021"
-    command: ["python", "p2pnode.py", "5021", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node21:
+  build: .
+  ports:
+   - "8021:8021"
+  command: ["python", "p2pnode.py", "8021", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node22:
-    build: .
-    ports:
-      - "5022:5022"
-    command: ["python", "p2pnode.py", "5022", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node22:
+  build: .
+  ports:
+   - "8022:8022"
+  command: ["python", "p2pnode.py", "8022", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node23:
-    build: .
-    ports:
-      - "5023:5023"
-    command: ["python", "p2pnode.py", "5023", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node23:
+  build: .
+  ports:
+   - "8023:8023"
+  command: ["python", "p2pnode.py", "8023", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node24:
-    build: .
-    ports:
-      - "5024:5024"
-    command: ["python", "p2pnode.py", "5024", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node24:
+  build: .
+  ports:
+   - "8024:8024"
+  command: ["python", "p2pnode.py", "8024", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node25:
-    build: .
-    ports:
-      - "5025:5025"
-    command: ["python", "p2pnode.py", "5025", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node25:
+  build: .
+  ports:
+   - "8025:8025"
+  command: ["python", "p2pnode.py", "8025", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node26:
-    build: .
-    ports:
-      - "5026:5026"
-    command: ["python", "p2pnode.py", "5026", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node26:
+  build: .
+  ports:
+   - "8026:8026"
+  command: ["python", "p2pnode.py", "8026", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node27:
-    build: .
-    ports:
-      - "5027:5027"
-    command: ["python", "p2pnode.py", "5027", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node27:
+  build: .
+  ports:
+   - "8027:8027"
+  command: ["python", "p2pnode.py", "8027", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node28:
-    build: .
-    ports:
-      - "5028:5028"
-    command: ["python", "p2pnode.py", "5028", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node28:
+  build: .
+  ports:
+   - "8028:8028"
+  command: ["python", "p2pnode.py", "8028", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node29:
-    build: .
-    ports:
-      - "5029:5029"
-    command: ["python", "p2pnode.py", "5029", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node29:
+  build: .
+  ports:
+   - "8029:8029"
+  command: ["python", "p2pnode.py", "8029", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node30:
-    build: .
-    ports:
-      - "5030:5030"
-    command: ["python", "p2pnode.py", "5030", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node30:
+  build: .
+  ports:
+   - "8030:8030"
+  command: ["python", "p2pnode.py", "8030", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node31:
-    build: .
-    ports:
-      - "5031:5031"
-    command: ["python", "p2pnode.py", "5031", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node31:
+  build: .
+  ports:
+   - "8031:8031"
+  command: ["python", "p2pnode.py", "8031", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node32:
-    build: .
-    ports:
-      - "5032:5032"
-    command: ["python", "p2pnode.py", "5032", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node32:
+  build: .
+  ports:
+   - "8032:8032"
+  command: ["python", "p2pnode.py", "8032", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node33:
-    build: .
-    ports:
-      - "5033:5033"
-    command: ["python", "p2pnode.py", "5033", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node33:
+  build: .
+  ports:
+   - "8033:8033"
+  command: ["python", "p2pnode.py", "8033", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node34:
-    build: .
-    ports:
-      - "5034:5034"
-    command: ["python", "p2pnode.py", "5034", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node34:
+  build: .
+  ports:
+   - "8034:8034"
+  command: ["python", "p2pnode.py", "8034", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node35:
-    build: .
-    ports:
-      - "5035:5035"
-    command: ["python", "p2pnode.py", "5035", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node35:
+  build: .
+  ports:
+   - "8035:8035"
+  command: ["python", "p2pnode.py", "8035", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node36:
-    build: .
-    ports:
-      - "5036:5036"
-    command: ["python", "p2pnode.py", "5036", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node36:
+  build: .
+  ports:
+   - "8036:8036"
+  command: ["python", "p2pnode.py", "8036", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node37:
-    build: .
-    ports:
-      - "5037:5037"
-    command: ["python", "p2pnode.py", "5037", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node37:
+  build: .
+  ports:
+   - "8037:8037"
+  command: ["python", "p2pnode.py", "8037", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node38:
-    build: .
-    ports:
-      - "5038:5038"
-    command: ["python", "p2pnode.py", "5038", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node38:
+  build: .
+  ports:
+   - "8038:8038"
+  command: ["python", "p2pnode.py", "8038", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node39:
-    build: .
-    ports:
-      - "5039:5039"
-    command: ["python", "p2pnode.py", "5039", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node39:
+  build: .
+  ports:
+   - "8039:8039"
+  command: ["python", "p2pnode.py", "8039", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node40:
-    build: .
-    ports:
-      - "5040:5040"
-    command: ["python", "p2pnode.py", "5040", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node40:
+  build: .
+  ports:
+   - "8040:8040"
+  command: ["python", "p2pnode.py", "8040", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node41:
-    build: .
-    ports:
-      - "5041:5041"
-    command: ["python", "p2pnode.py", "5041", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node41:
+  build: .
+  ports:
+   - "8041:8041"
+  command: ["python", "p2pnode.py", "8041", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node42:
-    build: .
-    ports:
-      - "5042:5042"
-    command: ["python", "p2pnode.py", "5042", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node42:
+  build: .
+  ports:
+   - "8042:8042"
+  command: ["python", "p2pnode.py", "8042", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node43:
-    build: .
-    ports:
-      - "5043:5043"
-    command: ["python", "p2pnode.py", "5043", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node43:
+  build: .
+  ports:
+   - "8043:8043"
+  command: ["python", "p2pnode.py", "8043", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node44:
-    build: .
-    ports:
-      - "5044:5044"
-    command: ["python", "p2pnode.py", "5044", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node44:
+  build: .
+  ports:
+   - "8044:8044"
+  command: ["python", "p2pnode.py", "8044", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node45:
-    build: .
-    ports:
-      - "5045:5045"
-    command: ["python", "p2pnode.py", "5045", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node45:
+  build: .
+  ports:
+   - "8045:8045"
+  command: ["python", "p2pnode.py", "8045", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node46:
-    build: .
-    ports:
-      - "5046:5046"
-    command: ["python", "p2pnode.py", "5046", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node46:
+  build: .
+  ports:
+   - "8046:8046"
+  command: ["python", "p2pnode.py", "8046", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node47:
-    build: .
-    ports:
-      - "5047:5047"
-    command: ["python", "p2pnode.py", "5047", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node47:
+  build: .
+  ports:
+   - "8047:8047"
+  command: ["python", "p2pnode.py", "8047", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node48:
-    build: .
-    ports:
-      - "5048:5048"
-    command: ["python", "p2pnode.py", "5048", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node48:
+  build: .
+  ports:
+   - "8048:8048"
+  command: ["python", "p2pnode.py", "8048", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node49:
-    build: .
-    ports:
-      - "5049:5049"
-    command: ["python", "p2pnode.py", "5049", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node49:
+  build: .
+  ports:
+   - "8049:8049"
+  command: ["python", "p2pnode.py", "8049", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
 
-  node50:
-    build: .
-    ports:
-      - "5050:5050"
-    command: ["python", "p2pnode.py", "5050", "http://bootstrap:5000"]
-    depends_on:
-      - bootstrap
+ node50:
+  build: .
+  ports:
+   - "8050:8050"
+  command: ["python", "p2pnode.py", "8050", "http://bootstrap:8000"]
+  depends_on:
+   - bootstrap
