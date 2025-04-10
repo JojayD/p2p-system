@@ -2,7 +2,9 @@ import uuid
 import requests
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
+import random
+import socket
+import time
 
 class P2PNode:
     def __init__(self, port, bootstrap_url=None):
@@ -55,6 +57,7 @@ class P2PNode:
 
             return jsonify({'status': 'success', 'peers': len(self.peers)})
 
+
         @self.app.route('/peers', methods=['GET'])
         def get_peers():
             """Return the list of peers"""
@@ -70,15 +73,23 @@ class P2PNode:
             if not data or 'sender' not in data or 'msg' not in data:
                 return jsonify({'error': 'Invalid message format'}), 400
 
-            sender = data['sender']
-            message = data['msg']
+            sender = data["sender"]
+            message = data["msg"]
+            node_name = socket.gethostname()
 
-            print(f"Received message from {sender}: {message}")
+            response = f"Received message from {sender}: {message}. "
+
+            response += f"This is {node_name}, It is a good day"
 
             # You could add logic here to forward the message to other peers
             # or process it in some way
+            
 
-            return jsonify({'status': 'received'})
+            return jsonify({'status': 'received',
+                            'msg': message,
+                            'from': sender,
+                            'current_node': node_name,
+                            'reply': response})
 
     def start(self):
         """Start the HTTP server"""
@@ -126,6 +137,42 @@ class P2PNode:
                 print(f"Got {len(peer_list)} peers from bootstrap node")
         except requests.RequestException as e:
             print(f"Error getting peers from bootstrap node: {e}")
+
+        self.send_message()
+    
+    def send_message(self):
+        """Sending a message to a random peer in the peerlist"""
+
+        #Retrieves a random key, value pair from dictionary
+        peer_id, peer_address = random.choice(list(self.peers.items()))
+
+        try: 
+            #variables used in post request
+            values = peer_address.split(":")
+            node_name = socket.gethostname()
+            alive = f"{peer_address}/status"
+            url = f"{peer_address}/message"
+            
+
+            print(f"This is {node_name}, Sending a message to {peer_id} at {peer_address}")
+            print(f"Sending to {url}")
+
+            r = requests.get(alive)
+
+            #Check to see if node is alive and not still starting up
+            while (r.status_code != 200):
+                r =  requests.get(alive)
+
+            response = requests.post(url, json={"sender": node_name, "msg": f"This is {node_name}, How is your day? "})
+
+            if response.status_code == 200:
+                print(f"Got response: {response.content}")
+            else :
+                print("Error connecting")
+
+        except requests.RequestException as e:
+            print(f"Error connecting to node: {e}")
+
 
 
 # Example usage
