@@ -1,7 +1,7 @@
 # **Group Project 2: A Try of Peer-To-Peer**
-- Joseph David:
-- Jayden Tran:
-- Dominique Legaspi:
+- Joseph David: 031644494
+- Jayden Tran: 018148739
+- Dominique Legaspi: 032094567
 
 # Overview
 This project implements a peer-to-peer networking using Docker containers consisting of 50-100 nodes, each acting as both a client and a server. 
