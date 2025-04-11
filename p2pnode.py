@@ -138,7 +138,8 @@ class P2PNode:
         except requests.RequestException as e:
             print(f"Error getting peers from bootstrap node: {e}")
 
-        self.send_message()
+        for x in range(3):
+            self.send_message()
     
     def send_message(self):
         """Sending a message to a random peer in the peerlist"""
@@ -160,12 +161,10 @@ class P2PNode:
             r = requests.get(alive)
 
             #Check to see if node is alive and not still starting up
-            while (r.status_code != 200):
-                r =  requests.get(alive)
+            
+            if r.status_code == 200:
 
-            response = requests.post(url, json={"sender": node_name, "msg": f"This is {node_name}, How is your day? "})
-
-            if response.status_code == 200:
+                response = requests.post(url, json={"sender": node_name, "msg": f"This is {node_name}, How is your day? "})
                 print(f"Got response: {response.content}")
             else :
                 print("Error connecting")
