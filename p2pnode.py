@@ -118,8 +118,36 @@ class P2PNode:
             inside /app/storage by using something like 
             http://localhost:6969/download/filename """
 
-
             return send_from_directory("/app/storage", filename)
+        
+        @self.app.route('/kv', methods=['POST'])
+        def store_KVPairs():
+            """Store the key-value pairs that a Anon sends via a curl json message"""
+
+            data = request.get_json()
+
+            #Check if the info sent is correct and the json / json content is there
+            if not data:
+                return jsonify({'status': 'incomplete', 'message': 'No values passed'}), 400
+            if 'key' not in data:
+                return jsonify({'status': 'incomplete', 'message': 'missing the key info'}), 400
+            if 'value' not in data:
+                return jsonify({'status': 'incomplete', 'message': 'missing the value info'}), 400
+            
+            #retrieve the values out
+            key = data['key']
+            value = data['value']
+
+            self.keyvalue[key] = value
+
+            return jsonify({'status': 'success', 'message': f'Stored the {key}:{value} pair'}), 200
+        
+        @self.app.route('/kv/<key>', methods=['GET'])
+        def get_KVPair(key):
+            """Return the value based on the key"""
+            return self.keyvalue[key], 200
+
+
         
 
     def start(self):
