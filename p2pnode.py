@@ -98,6 +98,10 @@ class P2PNode:
         @self.app.route('/upload', methods=['POST'])
         def upload_file():
             """Upload a file to the container"""
+
+            # An example link would be something like
+            # curl -F 'file=@localFileName' http://localhost:{numeric numbers}/upload
+
             file = request.files.get('file')
 
             #determine if the file exists or not
@@ -110,6 +114,11 @@ class P2PNode:
         
         @self.app.route('/download/<filename>', methods=['GET'])
         def retrieve_file(filename):
+            """Allow the local user to download the file that is stored 
+            inside /app/storage by using something like 
+            http://localhost:6969/download/filename """
+
+
             return send_from_directory("/app/storage", filename)
         
 
