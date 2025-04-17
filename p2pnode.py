@@ -15,6 +15,7 @@ class P2PNode:
         self.id = str(uuid.uuid4())
         self.port = port
         self.peers = {}  # Dictionary to store information about peer nodes
+        self.keyvalue = {} # The in-memory storage
         self.bootstrap_url = bootstrap_url
 
         # Initialize Flask application
@@ -93,6 +94,13 @@ class P2PNode:
                             'from': sender,
                             'current_node': node_name,
                             'reply': response})
+    
+        @self.app.route('/upload', methods=['POST'])
+        def upload_file():
+            """Upload a file to the container"""
+            
+            return jsonify({'status': 'success'})
+        
 
     def start(self):
         """Start the HTTP server"""
