@@ -1,6 +1,6 @@
 import uuid
 import requests
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import random
 import socket
@@ -98,17 +98,19 @@ class P2PNode:
         @self.app.route('/upload', methods=['POST'])
         def upload_file():
             """Upload a file to the container"""
-            data = request.get_json()
+            file = request.files.get('file')
 
-            if not data:
-                return jsonify({'status': 'incomplete', 'message': 'No file name sent'})
-            if 'file' not in data:
-                return jsonify({'status': 'incomplete', 'message': "'file' key is not present"})
+            #determine if the file exists or not
+            if file:
+                file.save(f"/app/storage/{file.filename}")
+            else:
+                return "File name is missing", 400
             
-            filename = data['file']
-
-            
-            return jsonify({'status': 'success'})
+            return f"{file.filename} has been uploaded to the shared volume", 200
+        
+        @self.app.route('/download/<filename>', methods=['GET'])
+        def retrieve_file(filename):
+            return send_from_directory("/app/storage", filename)
         
 
     def start(self):
