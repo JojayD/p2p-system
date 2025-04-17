@@ -145,7 +145,13 @@ class P2PNode:
         @self.app.route('/kv/<key>', methods=['GET'])
         def get_KVPair(key):
             """Return the value based on the key"""
-            return self.keyvalue[key], 200
+
+            #See if the key actually exists in the dictionary
+            value = self.keyvalue.get(key, None)
+            if value is not None:
+                return value, 200
+            else:
+                return "Incorrect Key", 400
 
 
         
