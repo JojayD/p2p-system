@@ -98,6 +98,15 @@ class P2PNode:
         @self.app.route('/upload', methods=['POST'])
         def upload_file():
             """Upload a file to the container"""
+            data = request.get_json()
+
+            if not data:
+                return jsonify({'status': 'incomplete', 'message': 'No file name sent'})
+            if 'file' not in data:
+                return jsonify({'status': 'incomplete', 'message': "'file' key is not present"})
+            
+            filename = data['file']
+
             
             return jsonify({'status': 'success'})
         

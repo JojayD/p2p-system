@@ -12,6 +12,8 @@ services:
     ports:
       - '8001:8001'
     command: ['python', 'p2pnode.py', '8001', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -20,6 +22,8 @@ services:
     ports:
       - '8002:8002'
     command: ['python', 'p2pnode.py', '8002', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -28,6 +32,8 @@ services:
     ports:
       - '8003:8003'
     command: ['python', 'p2pnode.py', '8003', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -36,6 +42,8 @@ services:
     ports:
       - '8004:8004'
     command: ['python', 'p2pnode.py', '8004', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -44,6 +52,8 @@ services:
     ports:
       - '8005:8005'
     command: ['python', 'p2pnode.py', '8005', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -52,6 +62,8 @@ services:
     ports:
       - '8006:8006'
     command: ['python', 'p2pnode.py', '8006', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -60,6 +72,8 @@ services:
     ports:
       - '8007:8007'
     command: ['python', 'p2pnode.py', '8007', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -68,6 +82,8 @@ services:
     ports:
       - '8008:8008'
     command: ['python', 'p2pnode.py', '8008', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -76,6 +92,8 @@ services:
     ports:
       - '8009:8009'
     command: ['python', 'p2pnode.py', '8009', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -84,6 +102,8 @@ services:
     ports:
       - '8010:8010'
     command: ['python', 'p2pnode.py', '8010', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -92,6 +112,8 @@ services:
     ports:
       - '8011:8011'
     command: ['python', 'p2pnode.py', '8011', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -100,6 +122,8 @@ services:
     ports:
       - '8012:8012'
     command: ['python', 'p2pnode.py', '8012', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -108,6 +132,8 @@ services:
     ports:
       - '8013:8013'
     command: ['python', 'p2pnode.py', '8013', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -116,6 +142,8 @@ services:
     ports:
       - '8014:8014'
     command: ['python', 'p2pnode.py', '8014', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -124,6 +152,8 @@ services:
     ports:
       - '8015:8015'
     command: ['python', 'p2pnode.py', '8015', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -132,6 +162,8 @@ services:
     ports:
       - '8016:8016'
     command: ['python', 'p2pnode.py', '8016', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -140,6 +172,8 @@ services:
     ports:
       - '8017:8017'
     command: ['python', 'p2pnode.py', '8017', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -148,6 +182,8 @@ services:
     ports:
       - '8018:8018'
     command: ['python', 'p2pnode.py', '8018', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -156,6 +192,8 @@ services:
     ports:
       - '8019:8019'
     command: ['python', 'p2pnode.py', '8019', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -164,6 +202,8 @@ services:
     ports:
       - '8020:8020'
     command: ['python', 'p2pnode.py', '8020', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -172,6 +212,8 @@ services:
     ports:
       - '8021:8021'
     command: ['python', 'p2pnode.py', '8021', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -180,6 +222,8 @@ services:
     ports:
       - '8022:8022'
     command: ['python', 'p2pnode.py', '8022', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -188,6 +232,8 @@ services:
     ports:
       - '8023:8023'
     command: ['python', 'p2pnode.py', '8023', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -196,6 +242,8 @@ services:
     ports:
       - '8024:8024'
     command: ['python', 'p2pnode.py', '8024', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -204,6 +252,8 @@ services:
     ports:
       - '8025:8025'
     command: ['python', 'p2pnode.py', '8025', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -212,6 +262,8 @@ services:
     ports:
       - '8026:8026'
     command: ['python', 'p2pnode.py', '8026', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -220,6 +272,8 @@ services:
     ports:
       - '8027:8027'
     command: ['python', 'p2pnode.py', '8027', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -228,6 +282,8 @@ services:
     ports:
       - '8028:8028'
     command: ['python', 'p2pnode.py', '8028', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -236,6 +292,8 @@ services:
     ports:
       - '8029:8029'
     command: ['python', 'p2pnode.py', '8029', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -244,6 +302,8 @@ services:
     ports:
       - '8030:8030'
     command: ['python', 'p2pnode.py', '8030', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -252,6 +312,8 @@ services:
     ports:
       - '8031:8031'
     command: ['python', 'p2pnode.py', '8031', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -260,6 +322,8 @@ services:
     ports:
       - '8032:8032'
     command: ['python', 'p2pnode.py', '8032', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -268,6 +332,8 @@ services:
     ports:
       - '8033:8033'
     command: ['python', 'p2pnode.py', '8033', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -276,6 +342,8 @@ services:
     ports:
       - '8034:8034'
     command: ['python', 'p2pnode.py', '8034', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -284,6 +352,8 @@ services:
     ports:
       - '8035:8035'
     command: ['python', 'p2pnode.py', '8035', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -292,6 +362,8 @@ services:
     ports:
       - '8036:8036'
     command: ['python', 'p2pnode.py', '8036', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -300,6 +372,8 @@ services:
     ports:
       - '8037:8037'
     command: ['python', 'p2pnode.py', '8037', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -308,6 +382,8 @@ services:
     ports:
       - '8038:8038'
     command: ['python', 'p2pnode.py', '8038', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -316,6 +392,8 @@ services:
     ports:
       - '8039:8039'
     command: ['python', 'p2pnode.py', '8039', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -324,6 +402,8 @@ services:
     ports:
       - '8040:8040'
     command: ['python', 'p2pnode.py', '8040', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -332,6 +412,8 @@ services:
     ports:
       - '8041:8041'
     command: ['python', 'p2pnode.py', '8041', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -340,6 +422,8 @@ services:
     ports:
       - '8042:8042'
     command: ['python', 'p2pnode.py', '8042', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -348,6 +432,8 @@ services:
     ports:
       - '8043:8043'
     command: ['python', 'p2pnode.py', '8043', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -356,6 +442,8 @@ services:
     ports:
       - '8044:8044'
     command: ['python', 'p2pnode.py', '8044', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -364,6 +452,8 @@ services:
     ports:
       - '8045:8045'
     command: ['python', 'p2pnode.py', '8045', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -372,6 +462,8 @@ services:
     ports:
       - '8046:8046'
     command: ['python', 'p2pnode.py', '8046', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -380,6 +472,8 @@ services:
     ports:
       - '8047:8047'
     command: ['python', 'p2pnode.py', '8047', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -388,6 +482,8 @@ services:
     ports:
       - '8048:8048'
     command: ['python', 'p2pnode.py', '8048', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -396,6 +492,8 @@ services:
     ports:
       - '8049:8049'
     command: ['python', 'p2pnode.py', '8049', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
 
@@ -404,5 +502,10 @@ services:
     ports:
       - '8050:8050'
     command: ['python', 'p2pnode.py', '8050', 'http://bootstrap:8000']
+    volumes:
+      - shared-storage:/app/storage
     depends_on:
       - bootstrap
+
+volumes:
+  shared-storage:
