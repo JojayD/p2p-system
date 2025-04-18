@@ -9,13 +9,14 @@ import threading
 
 returnVals = ['good', 'bad']
 
+
 class P2PNode:
     def __init__(self, port, bootstrap_url=None):
         # Assign a unique identifier to this node
         self.id = str(uuid.uuid4())
         self.port = port
         self.peers = {}  # Dictionary to store information about peer nodes
-        self.keyvalue = {} # The in-memory storage
+        self.keyvalue = {}  # The in-memory storage
         self.bootstrap_url = bootstrap_url
 
         # Initialize Flask application
@@ -23,15 +24,40 @@ class P2PNode:
         CORS(self.app)
         self.setup_routes()
 
+    def print_value(self, key):
+        print(key)
+
+    def hash_key_to_node(self, key):
+        # Convert key to string if it isn't already
+        key_str = str(key)
+
+        # Get all available nodes (including self)
+        all_nodes = list(self.peers.items())
+        my_container_name = f"node{self.port-8000}" if self.port != 8000 else "bootstrap"
+        my_address = f"http://{my_container_name}:{self.port}"
+        all_nodes.append((self.id, my_address))
+        print(my_container_name, my_address)
+        print(f"All nodes: {all_nodes}")
+        if not all_nodes:
+            return self.id, my_address
+
+        # Use a consistent numeric value from the key string
+        # Simply sum the byte values of characters in the key
+        key_numeric = sum(ord(c) for c in key_str)
+        print(key_numeric)
+        # Map to a node using modulo
+        node_index = key_numeric % len(all_nodes)
+        return all_nodes[node_index]
+
     def setup_routes(self):
         """Configure the API endpoints for this node"""
 
         @self.app.route('/', methods=['GET'])
         def root():
-          """Return basic information when accessing the root URL"""
-          return jsonify({
-              "message": f"Node {self.id} is running!"
-          })
+            """Return basic information when accessing the root URL"""
+            return jsonify({
+                "message": f"Node {self.id} is running!"
+            })
 
         @self.app.route('/status', methods=['GET'])
         def status():
@@ -61,7 +87,6 @@ class P2PNode:
 
             return jsonify({'status': 'success', 'peers': len(self.peers)}), 200
 
-
         @self.app.route('/peers', methods=['GET'])
         def get_peers():
             """Return the list of peers"""
@@ -87,14 +112,13 @@ class P2PNode:
 
             # You could add logic here to forward the message to other peers
             # or process it in some way
-            
 
             return jsonify({'status': 'received',
                             'msg': message,
                             'from': sender,
                             'current_node': node_name,
                             'reply': response})
-    
+
         @self.app.route('/upload', methods=['POST'])
         def upload_file():
             """Upload a file to the container"""
@@ -104,61 +128,88 @@ class P2PNode:
 
             file = request.files.get('file')
 
-            #determine if the file exists or not
+            # determine if the file exists or not
             if file:
                 file.save(f"/app/storage/{file.filename}")
             else:
                 return "File name is missing", 400
-            
+
             return f"{file.filename} has been uploaded to the shared volume", 200
-        
+
         @self.app.route('/download/<filename>', methods=['GET'])
         def retrieve_file(filename):
-            """Allow the local user to download the file that is stored 
-            inside /app/storage by using something like 
+            """Allow the local user to download the file that is stored
+            inside /app/storage by using something like
             http://localhost:6969/download/filename """
 
             return send_from_directory("/app/storage", filename)
-        
+
         @self.app.route('/kv', methods=['POST'])
         def store_KVPairs():
             """Store the key-value pairs that a Anon sends via a curl json message"""
 
             data = request.get_json()
 
-            #Check if the info sent is correct and the json / json content is there
+            # Check if the info sent is correct and the json / json content is there
             if not data:
                 return jsonify({'status': 'incomplete', 'message': 'No values passed'}), 400
             if 'key' not in data:
                 return jsonify({'status': 'incomplete', 'message': 'missing the key info'}), 400
             if 'value' not in data:
                 return jsonify({'status': 'incomplete', 'message': 'missing the value info'}), 400
-            
-            #retrieve the values out
-            key = data['key']
-            value = data['value']
 
-            self.keyvalue[key] = value
+            # Find the responsible node for this key
+            responsible_node_id, responsible_node_address = self.hash_key_to_node(
+                data['key'])
 
-            return jsonify({'status': 'success', 'message': f'Stored the {key}:{value} pair'}), 200
-        
+            # Get my container name and address
+            my_container_name = f"node{self.port-8000}" if self.port != 8000 else "bootstrap"
+            my_address = f"http://{my_container_name}:{self.port}"
+
+            # Forward the request if we're not the responsible node
+            if responsible_node_address != my_address:
+                try:
+                    print(
+                        f"Forwarding key {data['key']} to node {responsible_node_id} at {responsible_node_address}")
+                    forwarded_response = requests.post(
+                        f"{responsible_node_address}/kv", json=data)
+                    return jsonify(forwarded_response.json()), forwarded_response.status_code
+                except requests.exceptions.RequestException as e:
+                    return jsonify({"error": f"Error forwarding request: {str(e)}"}), 500
+
         @self.app.route('/kv/<key>', methods=['GET'])
         def get_KVPair(key):
             """Return the value based on the key"""
 
-            #See if the key actually exists in the dictionary
+            # Find the responsible node for this key
+            responsible_node_id, responsible_node_address = self.hash_key_to_node(
+                key)
+
+            # Get my container name and address
+            my_container_name = f"node{self.port-8000}" if self.port != 8000 else "bootstrap"
+            my_address = f"http://{my_container_name}:{self.port}"
+
+            # Forward the request if we're not the responsible node
+            if responsible_node_address != my_address:
+                try:
+                    print(
+                        f"Forwarding key lookup for {key} to node {responsible_node_id} at {responsible_node_address}")
+                    forwarded_response = requests.get(
+                        f"{responsible_node_address}/kv/{key}")
+                    return forwarded_response.text, forwarded_response.status_code
+                except requests.exceptions.RequestException as e:
+                    return jsonify({"error": f"Error forwarding request: {str(e)}"}), 500
+
+                # We are the responsible node, return the value if it exists
             value = self.keyvalue.get(key, None)
             if value is not None:
-                return value, 200
+                return jsonify({"key": key, "value": value, "node": self.id}), 200
             else:
-                return "Incorrect Key", 400
-
-
-        
+                return jsonify({"error": "Key not found"}), 404
 
     def start(self):
         """Start the HTTP server"""
-        
+
         print(f"Starting P2P node with ID: {self.id}")
         print(f"Node is running on http://localhost:{self.port}")
 
@@ -176,9 +227,8 @@ class P2PNode:
         })
         flask_thread.start()
 
-        for x in range(3):
-            self.send_message()
-        
+        # for x in range(3):
+        # self.send_message()
 
     def register_with_bootstrap(self):
         """Register this node with the bootstrap node"""
@@ -216,7 +266,6 @@ class P2PNode:
         except requests.RequestException as e:
             print(f"Error getting peers from bootstrap node: {e}")
 
-
     def node_active(self, url, retries=8):
         """Trying to check if node address is active with Flask or not"""
         for i in range(retries):
@@ -229,18 +278,18 @@ class P2PNode:
 
             time.sleep(2)
         return False
-    
+
     def send_message(self):
         """Sending a message to a random peer in the peerlist"""
 
         if not self.peers:
             return
 
-        #Retrieves a random key, value pair from dictionary
+        # Retrieves a random key, value pair from dictionary
         peer_id, peer_address = random.choice(list(self.peers.items()))
 
-        try: 
-            #variables used in post request
+        try:
+            # variables used in post request
             values = peer_address.split(":")
             node_name = socket.gethostname()
             alive = f"{peer_address}/status"
@@ -248,22 +297,20 @@ class P2PNode:
 
             # alive = f"http://localhost:{values[2]}/status"
             # url = f"http://localhost:{values[2]}/message"
-            
 
             # r = requests.get(alive, timeout=5)
-            
+
             if self.node_active(alive):
-                print(f"This is {node_name}, Sending a message to {peer_id} at {peer_address}")
+                print(
+                    f"This is {node_name}, Sending a message to {peer_id} at {peer_address}")
                 print(f"Sending to {url}")
 
-                response = requests.post(url, json={"sender": node_name, "msg": f"This is {node_name}, How is your day? "})
+                response = requests.post(
+                    url, json={"sender": node_name, "msg": f"This is {node_name}, How is your day? "})
                 print(f"Got response: {response.content}")
 
         except requests.RequestException as e:
             print(f"Error connecting to node: {e}")
-
-    
-
 
 
 # Example usage
