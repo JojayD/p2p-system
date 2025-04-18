@@ -6,6 +6,7 @@ import random
 import socket
 import time
 import threading
+import hashlib
 
 returnVals = ['good', 'bad']
 
@@ -22,6 +23,29 @@ class P2PNode:
         self.app = Flask(__name__)
         CORS(self.app)
         self.setup_routes()
+
+    def hash_key_to_node(self, key):
+        # Convert key to string if it isn't already
+        key_str = str(key)
+
+        # Get all available nodes (including self)
+        all_nodes = list(self.peers.items())
+        my_container_name = f"node{self.port-8000}" if self.port != 8000 else "bootstrap"
+        my_address = f"http://{my_container_name}:{self.port}"
+        all_nodes.append((self.id, my_address))
+        print(my_container_name, my_address)
+        print(f"All nodes: {all_nodes}")
+        if not all_nodes:
+            return self.id, my_address
+
+        # Use a consistent numeric value from the key string
+        # Simply sum the byte values of characters in the key
+        key_numeric = sum(ord(c) for c in key_str)
+        print(key_numeric)
+        # Map to a node using modulo
+        node_index = key_numeric % len(all_nodes)
+        return all_nodes[node_index]
+
 
     def setup_routes(self):
         """Configure the API endpoints for this node"""
@@ -133,12 +157,15 @@ class P2PNode:
                 return jsonify({'status': 'incomplete', 'message': 'missing the key info'}), 400
             if 'value' not in data:
                 return jsonify({'status': 'incomplete', 'message': 'missing the value info'}), 400
-            
+
+            list_of_all_nodes = self.hash_key_to_node(self.keyvalue[self.id])
+            print(list_of_all_nodes)
             #retrieve the values out
             key = data['key']
             value = data['value']
 
             self.keyvalue[key] = value
+
 
             return jsonify({'status': 'success', 'message': f'Stored the {key}:{value} pair'}), 200
         
