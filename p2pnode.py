@@ -6,6 +6,7 @@ import random
 import socket
 import time
 import threading
+import hashlib
 
 returnVals = ['good', 'bad']
 
@@ -28,26 +29,42 @@ class P2PNode:
         print(key)
 
     def hash_key_to_node(self, key):
-        # Convert key to string if it isn't already
+        # Use the key directly as the hash
         key_str = str(key)
+        hash_int = int(key_str, 16) if key_str.isdigit() else sum(
+            ord(c) for c in key_str)
+
+        print(
+            f"DEBUG: Calculating hash for key: {key}, hash value: {hash_int}")
 
         # Get all available nodes (including self)
         all_nodes = list(self.peers.items())
         my_container_name = f"node{self.port-8000}" if self.port != 8000 else "bootstrap"
         my_address = f"http://{my_container_name}:{self.port}"
         all_nodes.append((self.id, my_address))
-        print(my_container_name, my_address)
-        print(f"All nodes: {all_nodes}")
+
+        print(f"DEBUG: Available nodes for routing: {len(all_nodes)}")
+        if len(all_nodes) <= 1:
+            print(
+                f"DEBUG: WARNING - Only found {len(all_nodes)} nodes including self!")
+
         if not all_nodes:
+            print("DEBUG: No nodes available, using self")
             return self.id, my_address
 
-        # Use a consistent numeric value from the key string
-        # Simply sum the byte values of characters in the key
-        key_numeric = sum(ord(c) for c in key_str)
-        print(key_numeric)
         # Map to a node using modulo
-        node_index = key_numeric % len(all_nodes)
-        return all_nodes[node_index]
+        node_index = hash_int % len(all_nodes)
+        responsible_node = all_nodes[node_index]
+
+        print(
+            f"DEBUG: Selected node {node_index} of {len(all_nodes)}: {responsible_node}")
+        print(f"DEBUG: My address is {my_address}")
+        if responsible_node[1] == my_address:
+            print("DEBUG: I am the responsible node!")
+        else:
+            print(f"DEBUG: Forwarding to {responsible_node[0]}")
+
+        return responsible_node
 
     def setup_routes(self):
         """Configure the API endpoints for this node"""
@@ -158,9 +175,14 @@ class P2PNode:
             if 'value' not in data:
                 return jsonify({'status': 'incomplete', 'message': 'missing the value info'}), 400
 
+            key = data['key']
+            value = data['value']
+            print(
+                f"Processing request to store key: {key} with value: {value}")
+
             # Find the responsible node for this key
             responsible_node_id, responsible_node_address = self.hash_key_to_node(
-                data['key'])
+                key)
 
             # Get my container name and address
             my_container_name = f"node{self.port-8000}" if self.port != 8000 else "bootstrap"
@@ -170,16 +192,31 @@ class P2PNode:
             if responsible_node_address != my_address:
                 try:
                     print(
-                        f"Forwarding key {data['key']} to node {responsible_node_id} at {responsible_node_address}")
+                        f"Forwarding key {key} to node {responsible_node_id} at {responsible_node_address}")
+                    # Ensure we're using the container name, not localhost in Docker networking
                     forwarded_response = requests.post(
-                        f"{responsible_node_address}/kv", json=data)
-                    return jsonify(forwarded_response.json()), forwarded_response.status_code
+                        responsible_node_address + "/kv", json=data)
+                    print(
+                        f"Forwarded response status: {forwarded_response.status_code}")
+                    return forwarded_response.text, forwarded_response.status_code
                 except requests.exceptions.RequestException as e:
+                    print(f"ERROR forwarding request: {str(e)}")
                     return jsonify({"error": f"Error forwarding request: {str(e)}"}), 500
+
+            # We are the responsible node, store the key-value pair
+            print(f"I am the responsible node for key {key}, storing locally")
+            self.keyvalue[key] = value
+
+            return jsonify({
+                'status': 'success',
+                'message': f'Stored {key}:{value} on node {self.id}',
+                'node': self.id
+            }), 200
 
         @self.app.route('/kv/<key>', methods=['GET'])
         def get_KVPair(key):
             """Return the value based on the key"""
+            print(f"Processing request to retrieve key: {key}")
 
             # Find the responsible node for this key
             responsible_node_id, responsible_node_address = self.hash_key_to_node(
@@ -196,15 +233,22 @@ class P2PNode:
                         f"Forwarding key lookup for {key} to node {responsible_node_id} at {responsible_node_address}")
                     forwarded_response = requests.get(
                         f"{responsible_node_address}/kv/{key}")
+                    print(
+                        f"Forwarded GET response status: {forwarded_response.status_code}")
                     return forwarded_response.text, forwarded_response.status_code
                 except requests.exceptions.RequestException as e:
+                    print(f"ERROR forwarding GET request: {str(e)}")
                     return jsonify({"error": f"Error forwarding request: {str(e)}"}), 500
 
-                # We are the responsible node, return the value if it exists
+            # We are the responsible node, return the value if it exists
+            print(
+                f"I am the responsible node for key {key}, checking local storage")
             value = self.keyvalue.get(key, None)
             if value is not None:
+                print(f"Found value for key {key}: {value}")
                 return jsonify({"key": key, "value": value, "node": self.id}), 200
             else:
+                print(f"Key {key} not found in my storage")
                 return jsonify({"error": "Key not found"}), 404
 
     def start(self):
@@ -236,22 +280,32 @@ class P2PNode:
         container_name = f"node{self.port-8000}" if self.port != 8000 else "bootstrap"
         my_address = f"http://{container_name}:{self.port}"
 
-        try:
-            response = requests.post(
-                f"{self.bootstrap_url}/register",
-                json={"id": self.id, "address": my_address},
-                timeout=5
-            )
-            if response.status_code == 200:
-                print(
-                    f"Successfully registered with bootstrap node at {self.bootstrap_url}")
-                # Get the list of peers from the bootstrap node
-                self.get_peers_from_bootstrap()
-            else:
-                print(
-                    f"Failed to register with bootstrap node: {response.status_code}")
-        except requests.RequestException as e:
-            print(f"Error connecting to bootstrap node: {e}")
+        retries = 5
+        for attempt in range(retries):
+            try:
+                print(f"Attempt {attempt+1} to register with bootstrap node")
+                response = requests.post(
+                    f"{self.bootstrap_url}/register",
+                    json={"id": self.id, "address": my_address},
+                    timeout=5
+                )
+                if response.status_code == 200:
+                    print(
+                        f"Successfully registered with bootstrap node at {self.bootstrap_url}")
+                    # Get the list of peers from the bootstrap node
+                    self.get_peers_from_bootstrap()
+                    return
+                else:
+                    print(
+                        f"Failed to register with bootstrap node: {response.status_code}")
+            except requests.RequestException as e:
+                print(f"Error connecting to bootstrap node: {e}")
+
+            # Wait before retry
+            print(f"Waiting before retry {attempt+1}")
+            time.sleep(2)
+
+        print("ERROR: Failed to register with bootstrap after multiple attempts")
 
     def get_peers_from_bootstrap(self):
         """Get the list of peers from the bootstrap node"""
@@ -259,10 +313,16 @@ class P2PNode:
             response = requests.get(f"{self.bootstrap_url}/peers", timeout=5)
             if response.status_code == 200:
                 peer_list = response.json().get('peers', {})
+                peer_count = 0
                 for peer_id, peer_address in peer_list.items():
                     if peer_id != self.id:  # Don't add ourselves
                         self.peers[peer_id] = peer_address
-                print(f"Got {len(peer_list)} peers from bootstrap node")
+                        peer_count += 1
+
+                print(f"Got {peer_count} peers from bootstrap node")
+                print(f"Full peer list: {self.peers}")
+            else:
+                print(f"Failed to get peers: {response.status_code}")
         except requests.RequestException as e:
             print(f"Error getting peers from bootstrap node: {e}")
 
