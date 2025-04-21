@@ -3,6 +3,7 @@ FROM python:3.9-slim
 
 # Set working directory
 WORKDIR /app
+RUN mkdir -p /app/storage
 
 # Install dependencies
 RUN pip install --no-cache-dir flask requests flask-cors
