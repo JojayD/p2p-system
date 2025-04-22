@@ -29,42 +29,18 @@ class P2PNode:
         print(key)
 
     def hash_key_to_node(self, key):
-        # Use the key directly as the hash
+        # hash key with SHA-1 and choose from sorted addresses
         key_str = str(key)
-        hash_int = int(key_str, 16) if key_str.isdigit() else sum(
-            ord(c) for c in key_str)
-
+        h_int = int(hashlib.sha1(key_str.encode()).hexdigest(), 16)
+        # build a stable, sorted list of node addresses
+        my_container = f"node{self.port-8000}" if self.port != 8000 else "bootstrap"
+        my_address = f"http://{my_container}:{self.port}"
+        nodes = sorted(list(self.peers.values()) + [my_address])
+        idx = h_int % len(nodes)
+        resp_addr = nodes[idx]
         print(
-            f"DEBUG: Calculating hash for key: {key}, hash value: {hash_int}")
-
-        # Get all available nodes (including self)
-        all_nodes = list(self.peers.items())
-        my_container_name = f"node{self.port-8000}" if self.port != 8000 else "bootstrap"
-        my_address = f"http://{my_container_name}:{self.port}"
-        all_nodes.append((self.id, my_address))
-
-        print(f"DEBUG: Available nodes for routing: {len(all_nodes)}")
-        if len(all_nodes) <= 1:
-            print(
-                f"DEBUG: WARNING - Only found {len(all_nodes)} nodes including self!")
-
-        if not all_nodes:
-            print("DEBUG: No nodes available, using self")
-            return self.id, my_address
-
-        # Map to a node using modulo
-        node_index = hash_int % len(all_nodes)
-        responsible_node = all_nodes[node_index]
-
-        print(
-            f"DEBUG: Selected node {node_index} of {len(all_nodes)}: {responsible_node}")
-        print(f"DEBUG: My address is {my_address}")
-        if responsible_node[1] == my_address:
-            print("DEBUG: I am the responsible node!")
-        else:
-            print(f"DEBUG: Forwarding to {responsible_node[0]}")
-
-        return responsible_node
+            f"DEBUG: key={key} idx={idx}/{len(nodes)} -> {resp_addr}", flush=True)
+        return resp_addr
 
     def setup_routes(self):
         """Configure the API endpoints for this node"""
@@ -181,7 +157,7 @@ class P2PNode:
                 f"Processing request to store key: {key} with value: {value}")
 
             # Find the responsible node for this key
-            responsible_node_id, responsible_node_address = self.hash_key_to_node(
+            responsible_node_address = self.hash_key_to_node(
                 key)
 
             # Get my container name and address
@@ -192,7 +168,7 @@ class P2PNode:
             if responsible_node_address != my_address:
                 try:
                     print(
-                        f"Forwarding key {key} to node {responsible_node_id} at {responsible_node_address}")
+                        f"Forwarding key {key} to node at {responsible_node_address}")
                     # Ensure we're using the container name, not localhost in Docker networking
                     forwarded_response = requests.post(
                         responsible_node_address + "/kv", json=data)
@@ -219,7 +195,7 @@ class P2PNode:
             print(f"Processing request to retrieve key: {key}")
 
             # Find the responsible node for this key
-            responsible_node_id, responsible_node_address = self.hash_key_to_node(
+            responsible_node_address = self.hash_key_to_node(
                 key)
 
             # Get my container name and address
@@ -230,7 +206,7 @@ class P2PNode:
             if responsible_node_address != my_address:
                 try:
                     print(
-                        f"Forwarding key lookup for {key} to node {responsible_node_id} at {responsible_node_address}")
+                        f"Forwarding key lookup for {key} to node at {responsible_node_address}")
                     forwarded_response = requests.get(
                         f"{responsible_node_address}/kv/{key}")
                     print(
@@ -266,7 +242,7 @@ class P2PNode:
         flask_thread = threading.Thread(target=self.app.run, kwargs={
             'host': '0.0.0.0',
             'port': self.port,
-            'debug': False,
+            'debug': True,
             'use_reloader': False
         })
         flask_thread.start()
