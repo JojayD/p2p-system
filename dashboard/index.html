@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>P2P Network Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #111;
+            color: #eee
+        }
+
+        #charts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1rem
+        }
+
+        canvas {
+            background: #222;
+            border-radius: 8px;
+            padding: 0.5rem
+        }
+
+        #graph {
+            flex: 1 1 100%;
+            height: 800px
+        }
+    </style>
+</head>
+
+<body>
+    <h2 style="padding: 2rem; padding-bottom: 0.5rem;">P2P Network Dashboard</h2>
+    <div id="charts">
+        <h3 style="padding: 2rem; padding-bottom: 0.5rem;">Network Graph</h3>
+        <svg id="graph"></svg>
+
+        <h3 style="padding: 2rem; padding-bottom: 0.5rem;">Messages Sent</h3>
+        <canvas id="sent" width="400" height="200"></canvas>
+
+        <h3 style="padding: 2rem; padding-bottom: 0.5rem;">Messages Received</h3>
+        <canvas id="recv" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+        const sentCtx = new Chart(document.getElementById('sent'), {
+            type: 'bar', data: { labels: [], datasets: [{ label: 'Messages Sent', data: [] }] },
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+
+        const recvCtx = new Chart(document.getElementById('recv'), {
+            type: 'bar', data: { labels: [], datasets: [{ label: 'Messages Received', data: [] }] },
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+
+        const svg = d3.select("#graph");
+
+        const linkG = svg.append("g").attr("stroke", "#888");
+        const nodeG = svg.append("g");
+
+
+        function updateGraph(nodes, links) {
+            const width = svg.node().clientWidth, height = svg.node().clientHeight;
+
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).distance(120).id(d => d.addr))
+                .force("charge", d3.forceManyBody().strength(-400))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            const link = linkG.selectAll("line").data(links, d => d.source.addr + ":" + d.target.addr);
+
+            link.exit().remove();
+            link.enter().append("line").attr("stroke-width", 2);
+
+            const node = nodeG.selectAll("circle").data(nodes, d => d.addr);
+            node.exit().remove();
+            node.enter().append("circle")
+                .attr("r", 10).attr("fill", "#68D")
+                .append("title");
+
+            node.merge(node).select("title")
+                .text(d => `${d.addr}\nsent:${d.sent}\nrecv:${d.recv}`);
+
+            simulation.on("tick", () => {
+                linkG.selectAll("line")
+                    .attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+                nodeG.selectAll("circle")
+                    .attr("cx", d => d.x).attr("cy", d => d.y);
+            });
+        }
+
+        async function poll() {
+            const res = await fetch("/api/state").then(r => r.json());
+
+            const nodes = Object.values(res.nodes);
+
+            const links = res.links;
+
+            sentCtx.data.labels = nodes.map(n => n.addr.split("//")[1]);
+            sentCtx.data.datasets[0].data = nodes.map(n => n.sent);
+            recvCtx.data.labels = nodes.map(n => n.addr.split("//")[1]);
+            recvCtx.data.datasets[0].data = nodes.map(n => n.recv);
+
+            sentCtx.update();
+            recvCtx.update();
+
+            updateGraph(nodes, links);
+        }
+
+        setInterval(poll, 3000);
+        poll();
+    </script>
+
+</body>
+
+</html>

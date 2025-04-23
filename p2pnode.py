@@ -1,12 +1,12 @@
 import uuid
 import requests
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, Response
 from flask_cors import CORS
 import random
 import socket
 import time
 import threading
-import hashlib
+import hashlib, json, os
 
 returnVals = ['good', 'bad']
 
@@ -19,6 +19,9 @@ class P2PNode:
         self.peers = {}  # Dictionary to store information about peer nodes
         self.keyvalue = {}  # The in-memory storage
         self.bootstrap_url = bootstrap_url
+        self.stats = {"sent": 0, "recv": 0}
+        self.node_hash = self.sha1_int(self.id)
+        self.address = f"http://{socket.gethostname()}:{self.port}"
 
         # Initialize Flask application
         self.app = Flask(__name__)
@@ -102,6 +105,9 @@ class P2PNode:
             response = f"Received message from {sender}: {message}. "
 
             response += f"This is {node_name}, It is a {random.choice(returnVals)} day"
+            
+            # metrics
+            self.stats["recv"] += 1
 
             # You could add logic here to forward the message to other peers
             # or process it in some way
@@ -182,6 +188,10 @@ class P2PNode:
             # We are the responsible node, store the key-value pair
             print(f"I am the responsible node for key {key}, storing locally")
             self.keyvalue[key] = value
+            os.makedirs("/app/storage", exist_ok=True)
+            with open("/app/storage/data.json", "w") as fh:
+                json.dump(self.keyvalue, fh, indent=2)
+            return {'status': 'stored', 'node': self.address}, 200
 
             return jsonify({
                 'status': 'success',
@@ -340,6 +350,9 @@ class P2PNode:
                 print(
                     f"This is {node_name}, Sending a message to {peer_id} at {peer_address}")
                 print(f"Sending to {url}")
+                
+                # metrics
+                self.stats["sent"] += 1
 
                 response = requests.post(
                     url, json={"sender": node_name, "msg": f"This is {node_name}, How is your day? "})
@@ -347,6 +360,24 @@ class P2PNode:
 
         except requests.RequestException as e:
             print(f"Error connecting to node: {e}")
+
+    @staticmethod
+    def sha1_int(s: str) -> int:
+        return int(hashlib.sha1(s.encode()).hexdigest(), 16)
+    
+    def ring(self):
+        peers_hashed = [(self.sha1_int(pid), addr) for pid, addr in self.peers.items()]
+        peers_hashed.append((self.node_hash, self.address))
+        return sorted(peers_hashed, key=lambda x: x[0])
+    
+    def responsible_addr(self, key: str) -> str:
+        h = self.sha1_int(key)
+        for nh, addr in self.ring():
+            if h <= nh:
+                return addr
+            
+        return self.ring()[0][1]
+
 
 
 # Example usage
