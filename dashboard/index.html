@@ -1,127 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>P2P Network Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="">
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="" />
     <style>
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #111;
-            color: #eee
-        }
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #111;
+        color: #eee;
+      }
 
-        #charts {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            padding: 1rem
-        }
+      #charts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding: 1rem;
+      }
 
-        canvas {
-            background: #222;
-            border-radius: 8px;
-            padding: 0.5rem
-        }
+      canvas {
+        background: #222;
+        border-radius: 8px;
+        padding: 0.5rem;
+      }
 
-        #graph {
-            flex: 1 1 100%;
-            height: 800px
-        }
+      #graph {
+        flex: 1 1 100%;
+        height: 800px;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    <h2 style="padding: 2rem; padding-bottom: 0.5rem;">P2P Network Dashboard</h2>
+  <body>
+    <h2 style="padding: 2rem; padding-bottom: 0.5rem">P2P Network Dashboard</h2>
     <div id="charts">
-        <h3 style="padding: 2rem; padding-bottom: 0.5rem;">Network Graph</h3>
-        <svg id="graph"></svg>
+      <h3 style="padding: 2rem; padding-bottom: 0.5rem">Network Graph</h3>
+      <svg id="graph"></svg>
 
-        <h3 style="padding: 2rem; padding-bottom: 0.5rem;">Messages Sent</h3>
-        <canvas id="sent" width="400" height="200"></canvas>
+      <h3 style="padding: 2rem 2rem 0.5rem">Node Status</h3>
+      <table
+        id="node-status-table"
+        style="
+          width: 100%;
+          padding: 2rem;
+          color: #eee;
+          border-collapse: collapse;
+        "
+      >
+        <thead>
+          <tr>
+            <th style="text-align: left; border-bottom: 1px solid #444">
+              Node
+            </th>
+            <th style="text-align: left; border-bottom: 1px solid #444">
+              Status
+            </th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
 
-        <h3 style="padding: 2rem; padding-bottom: 0.5rem;">Messages Received</h3>
-        <canvas id="recv" width="400" height="200"></canvas>
+      <h3 style="padding: 2rem; padding-bottom: 0.5rem">Messages Sent</h3>
+      <canvas id="sent" width="400" height="200"></canvas>
+
+      <h3 style="padding: 2rem; padding-bottom: 0.5rem">Messages Received</h3>
+      <canvas id="recv" width="400" height="200"></canvas>
     </div>
 
     <script>
-        const sentCtx = new Chart(document.getElementById('sent'), {
-            type: 'bar', data: { labels: [], datasets: [{ label: 'Messages Sent', data: [] }] },
-            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-        });
+      const sentCtx = new Chart(document.getElementById('sent'), {
+        type: 'bar',
+        data: { labels: [], datasets: [{ label: 'Messages Sent', data: [] }] },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } },
+        },
+      })
 
-        const recvCtx = new Chart(document.getElementById('recv'), {
-            type: 'bar', data: { labels: [], datasets: [{ label: 'Messages Received', data: [] }] },
-            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-        });
+      const recvCtx = new Chart(document.getElementById('recv'), {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{ label: 'Messages Received', data: [] }],
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } },
+        },
+      })
 
-        const svg = d3.select("#graph");
+      const svg = d3.select('#graph')
+      let created = false
 
-        const linkG = svg.append("g").attr("stroke", "#888");
-        const nodeG = svg.append("g");
+      const linkG = svg.append('g').attr('stroke', '#888')
+      const nodeG = svg.append('g')
 
+      function createGraph(nodes, links) {
+        // Create the node graph
+        const width = svg.node().clientWidth,
+          height = svg.node().clientHeight
 
-        function updateGraph(nodes, links) {
-            const width = svg.node().clientWidth, height = svg.node().clientHeight;
+        const simulation = d3
+          .forceSimulation(nodes)
+          .force(
+            'link',
+            d3
+              .forceLink(links)
+              .distance(50)
+              .id((d) => d.addr)
+          )
+          .force('charge', d3.forceManyBody().strength(-30))
+          .force('center', d3.forceCenter(width / 2, height / 2))
+          .stop()
 
-            const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).distance(120).id(d => d.addr))
-                .force("charge", d3.forceManyBody().strength(-400))
-                .force("center", d3.forceCenter(width / 2, height / 2));
+        for (let i = 0; i < 300; ++i) simulation.tick()
 
-            const link = linkG.selectAll("line").data(links, d => d.source.addr + ":" + d.target.addr);
+        linkG
+          .selectAll('line')
+          .data(links)
+          .enter()
+          .append('line')
+          .attr('stroke-width', 2)
+          .attr('x1', (d) => d.source.x)
+          .attr('y1', (d) => d.source.y)
+          .attr('x2', (d) => d.target.x)
+          .attr('y2', (d) => d.target.y)
 
-            link.exit().remove();
-            link.enter().append("line").attr("stroke-width", 2);
+        nodeG
+          .selectAll('circle')
+          .data(nodes)
+          .enter()
+          .append('circle')
+          .attr('r', 10)
+          .attr('fill', '#008000')
+          .attr('cx', (d) => d.x)
+          .attr('cy', (d) => d.y)
+          .append('title')
+          .text((d) => `${d.addr}\nsent:${d.sent}\nrecv:${d.recv}`)
 
-            const node = nodeG.selectAll("circle").data(nodes, d => d.addr);
-            node.exit().remove();
-            node.enter().append("circle")
-                .attr("r", 10).attr("fill", "#68D")
-                .append("title");
+        nodeG
+          .selectAll('text')
+          .data(nodes)
+          .enter()
+          .append('text')
+          .attr('font-size', '12px')
+          .attr('text-anchor', 'middle')
+          .attr('fill', '#ccc')
+          .attr('x', (d) => d.x)
+          .attr('y', (d) => d.y - 15)
+          .text((d) => d.addr.split('//')[1])
+      }
 
-            node.merge(node).select("title")
-                .text(d => `${d.addr}\nsent:${d.sent}\nrecv:${d.recv}`);
+      function updateGraph(nodes, links) {
+        // Update the node graph
+        const simulation = d3
+          .forceSimulation(nodes)
+          .force(
+            'link',
+            d3
+              .forceLink(links)
+              .distance(50)
+              .id((d) => d.addr)
+          )
+          .force('charge', d3.forceManyBody().strength(-30))
+          .force('center', d3.forceCenter(width / 2, height / 2))
+          .stop()
 
-            simulation.on("tick", () => {
-                linkG.selectAll("line")
-                    .attr("x1", d => d.source.x).attr("y1", d => d.source.y)
-                    .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
-                nodeG.selectAll("circle")
-                    .attr("cx", d => d.x).attr("cy", d => d.y);
-            });
+        for (let i = 0; i < 300; ++i) simulation.tick()
+        const link = linkG
+          .selectAll('line')
+          .data(links, (d) => d.source.addr + ':' + d.target.addr)
+
+        link.exit().remove()
+        link
+          .enter()
+          .append('line')
+          .attr('stroke-width', 2)
+          .merge(link)
+          .attr('x1', (d) => d.source.x)
+          .attr('y1', (d) => d.source.y)
+          .attr('x2', (d) => d.target.x)
+          .attr('y2', (d) => d.target.y)
+
+        const node = nodeG.selectAll('circle').data(nodes, (d) => d.addr)
+        node.exit().remove()
+        node
+          .enter()
+          .append('circle')
+          .attr('r', 10)
+          .attr('fill', '#008000')
+          .append('title')
+
+        node
+          .merge(node)
+          .attr('cx', (d) => d.x)
+          .attr('cy', (d) => d.y)
+          .select('title')
+          .text((d) => `${d.addr}\nsent:${d.sent}\nrecv:${d.recv}`)
+
+        const labels = nodeG.selectAll('text').data(nodes, (d) => d.addr)
+        labels.exit().remove()
+        labels
+          .enter()
+          .append('text')
+          .attr('font-size', '12px')
+          .attr('text-anchor', 'middle')
+          .attr('fill', '#ccc')
+          .text((d) => d.addr.split('//')[1])
+        labels
+          .merge(labels)
+          .attr('x', (d) => d.x)
+          .attr('y', (d) => d.y - 15)
+      }
+
+      async function poll() {
+        const res = await fetch('/api/state').then((r) => r.json())
+
+        const nodes = Object.values(res.nodes)
+
+        nodes.sort((a, b) => {
+          const numA = parseInt(a.addr.split('//')[1].match(/node(\d+)/)[1], 10)
+          const numB = parseInt(b.addr.split('//')[1].match(/node(\d+)/)[1], 10)
+          return numA - numB
+        })
+
+        const links = res.links
+
+        sentCtx.data.labels = nodes.map((n) => n.addr.split('//')[1])
+        sentCtx.data.datasets[0].data = nodes.map((n) => n.sent)
+        recvCtx.data.labels = nodes.map((n) => n.addr.split('//')[1])
+        recvCtx.data.datasets[0].data = nodes.map((n) => n.recv)
+
+        sentCtx.update()
+        recvCtx.update()
+        const statusTbody = document.querySelector('#node-status-table tbody')
+        statusTbody.innerHTML = ''
+
+        nodes.forEach((n) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td style="padding: 4px 12px;">${n.addr.split('//')[1]}</td>
+            <td style="padding: 4px 12px; color: lightgreen;">Alive</td>
+            `
+          statusTbody.appendChild(row)
+        })
+
+        if (created === false) {
+          created = true
+          createGraph(nodes, links)
+        } else {
+          updateGraph(nodes, links)
         }
+      }
 
-        async function poll() {
-            const res = await fetch("/api/state").then(r => r.json());
-
-            const nodes = Object.values(res.nodes);
-
-            const links = res.links;
-
-            sentCtx.data.labels = nodes.map(n => n.addr.split("//")[1]);
-            sentCtx.data.datasets[0].data = nodes.map(n => n.sent);
-            recvCtx.data.labels = nodes.map(n => n.addr.split("//")[1]);
-            recvCtx.data.datasets[0].data = nodes.map(n => n.recv);
-
-            sentCtx.update();
-            recvCtx.update();
-
-            updateGraph(nodes, links);
-        }
-
-        setInterval(poll, 3000);
-        poll();
+      let simulation = null
+      setInterval(poll, 3000)
+      poll()
     </script>
-
-</body>
-
+  </body>
 </html>

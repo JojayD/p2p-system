@@ -191,7 +191,7 @@ class P2PNode:
             os.makedirs("/app/storage", exist_ok=True)
             with open("/app/storage/data.json", "w") as fh:
                 json.dump(self.keyvalue, fh, indent=2)
-            return {'status': 'stored', 'node': self.address}, 200
+            return {'status': 'stored', 'node_id': self.id, 'node_address': self.address}, 200
 
             return jsonify({
                 'status': 'success',
@@ -232,10 +232,20 @@ class P2PNode:
             value = self.keyvalue.get(key, None)
             if value is not None:
                 print(f"Found value for key {key}: {value}")
-                return jsonify({"key": key, "value": value, "node": self.id}), 200
+                return jsonify({"key": key, "value": value, "node_id": self.id, "responsible_node_address": responsible_node_address}), 200
             else:
                 print(f"Key {key} not found in my storage")
                 return jsonify({"error": "Key not found"}), 404
+            
+        @self.app.route('/metrics', methods=["GET"])
+        def metrics():
+            lines = [
+                f'p2p_messages_sent{{instance="{self.address}"}} {self.stats["sent"]}',
+                f'p2p_messages_received{{instance="{self.address}"}} {self.stats["recv"]}',
+                f'p2p_peers{{instance="{self.address}"}} {len(self.peers)}'
+            ]
+            
+            return Response("\n".join(lines), mimetype="text/plain")
 
     def start(self):
         """Start the HTTP server"""
@@ -257,8 +267,8 @@ class P2PNode:
         })
         flask_thread.start()
 
-        # for x in range(3):
-        # self.send_message()
+        for x in range(random.randint(1,20)):
+            self.send_message()
 
     def register_with_bootstrap(self):
         """Register this node with the bootstrap node"""
