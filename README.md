@@ -1,4 +1,4 @@
-# **Group Project 2: A Try of Peer-To-Peer**
+# **Group Project 3: Distribution and Scalability**
 - Joseph David: 031644494
 - Jayden Tran: 018148739
 - Dominique Legaspi: 032094567
@@ -21,78 +21,59 @@ To run this program in your local environment, you will need the following progr
 4. Navigate back to Docker Desktop and select the proper container to see the logs
 
 # Learning Outcomes
-## Phase 1: Running a Single Node
-In Phase 1, we wrote a basic P2P node application where each node assigns itself a unique identifier using `uuid` and starts a minimal HTTP server using `Flask` to receive requests.
+## Launch the node
+```
+# Node 1 on port 5001
+docker run -d -p 5001:5000 -v "$(pwd)/storage1:/app/storage" --name node1 p2p-node
 
-### Building and running a single node:
-```
-docker build -t p2p-node .
-docker run -d -p 8000:8000 --name node1 p2p-node
-```
-### Expected Output:
-Visit `http://localhost:8000` to see the following:
-```
-{"message": "Node <UUID> is running!"}
+# Node 2 on port 5002
+docker run -d -p 5002:5000 -v "$(pwd)/storage2:/app/storage" --name node2 p2p-node
+
+# Node 3 on port 5003
+docker run -d -p 5003:5000 -v "$(pwd)/storage3:/app/storage" --name node3 p2p-node
 ```
 
-## Phase 2: Developing a Basic P2P Node
-In Phase 2, each node stores a list of known peers and sends and receives messages between nodes.
-
-### Start multiple nodes
+## Using the API
 ```
-docker run -d --name node1 -p 8001:8000 p2p-node
-docker run -d --name node2 -p 8002:8000 p2p-node
+curl -F "file=@mydoc.txt" http://localhost:5001/upload
 ```
-### Send a Message Between Nodes
+Expected output
 ```
-curl -X POST http://localhost:8002/message -H "Content-Type: application/json" -d '{"sender": "Node1", "msg": "Hello Node2!"}'
+{ "status": "uploaded", "filename": "mydoc.txt" }
 ```
-### Expected Output:
+## Key Value Store
 ```
-{"status": "received"}
-Received message from Node1: Hello Node2!
+curl -X POST http://localhost:5001/kv \
+  -H "Content-Type: application/json" \
+  -d '{"key": "color", "value": "blue"}'
 ```
 
-## Phase 3: Bootstrapping P2P Network and Communication
-In Phase 3, we enable automatic peer discovery using a bootstrap node, then explore P2P communication without bootstrap node.
-
-### Start Bootstrap Node in Docker
+Expected output:
 ```
-docker build -t bootstrap-node -f bootstrap.Dockerfile .
-docker run -d --name bootstrap -p 8000:8000 bootstrap-node
+{ "status": "stored", "key": "color", "node": "node1" }
 ```
-
-### Start Nodes
+### Get
 ```
-docker run -d --name node1 -p 8001:8000 p2p-node
-docker run -d --name node2 -p 8002:8000 p2p-node
+curl http://localhost:5001/kv/color
 ```
 
-### Check Peer Registration
+Response
 ```
-curl http://localhost:8000/peers
-```
-
-### Expected output
-```
-{"peers": ["http://localhost:8000", "http://node2:8000"]}
+{ "key": "color", "value": "blue" }
 ```
 
-### Testing Peer Communication Without Bootstrap
+## DHT Routing
 ```
-docker build -t bootstrap-node -f bootstrap.Dockerfile .
-docker run -d --name bootstrap -p 8000:8000 bootstrap-node
-```
-
-### Start Nodes
-```
-docker run -d --name node1 -p 8001:8000 p2p-node
-docker run -d --name node2 -p 8002:8000 p2p-node
+if current_node != responsible_node:
+    res = requests.post(f"http://{responsible_node}/kv", json=data)
 ```
 
-### Send Message Between Nodes
+## Visualization and Monitoring
 ```
-curl -X POST http://localhost:8001/message -H "Content-Type: application/json" -d '{"sender": "Node2", "msg": "Hello Node1!"}'
+# macOS (Homebrew)
+brew install node
 
-curl -X POST http://localhost:8002/message -H "Content-Type: application/json" -d '{"sender": "Node1", "msg": "Hey Node2, how are you?"}'
+# Ubuntu/Debian
+sudo apt-get update && sudo apt-get install -y nodejs npm
 ```
+Go to the localhost:8000 to see the charts and nodes.
